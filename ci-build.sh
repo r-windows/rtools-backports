@@ -42,11 +42,9 @@ export PKG_CONFIG="/${MINGW_INSTALLS}/bin/pkg-config --static"
 
 for package in "${packages[@]}"; do
     execute 'Building binary' makepkg-mingw --noconfirm --noprogressbar --skippgpcheck --nocheck --syncdeps --rmdeps --cleanbuild
-    execute 'Building source' makepkg --noconfirm --noprogressbar --skippgpcheck --allsource --config '/etc/makepkg_mingw64.conf'
     execute 'Installing' yes:pacman --noprogressbar --upgrade *.pkg.tar.xz
     execute 'Checking Binaries' find ./pkg -regex ".*\.\(exe\|dll\|a\|pc\)"
     mv "${package}"/*.pkg.tar.xz artifacts
-    mv "${package}"/*.src.tar.gz sourcepkg
     unset package
 done
 

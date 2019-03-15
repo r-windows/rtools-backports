@@ -1,4 +1,4 @@
-# Maintainer: Jeroen
+# Maintainer: Jeroen Ooms
 
 _realname=arrow
 pkgbase=mingw-w64-${_realname}
