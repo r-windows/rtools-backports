@@ -6,8 +6,8 @@
 # Setup git and CI
 cd "$(dirname "$0")"
 source 'ci-library.sh'
-deploy_enabled && mkdir artifacts
-deploy_enabled && mkdir sourcepkg
+mkdir artifacts
+mkdir sourcepkg
 git_config user.email 'ci@msys2.org'
 git_config user.name  'MSYS2 Continuous Integration'
 git remote add upstream 'https://github.com/r-windows/rtools-backports'
@@ -45,6 +45,8 @@ for package in "${packages[@]}"; do
     execute 'Building source' makepkg --noconfirm --noprogressbar --skippgpcheck --allsource --config '/etc/makepkg_mingw64.conf'
     execute 'Installing' yes:pacman --noprogressbar --upgrade *.pkg.tar.xz
     execute 'Checking Binaries' find ./pkg -regex ".*\.\(exe\|dll\|a\|pc\)"
+    mv "${package}"/*.pkg.tar.xz artifacts
+    mv "${package}"/*.src.tar.gz sourcepkg
     unset package
 done
 
