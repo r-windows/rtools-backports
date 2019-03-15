@@ -1,0 +1,37 @@
+clone_folder: C:\msys64\home\mingw-packages
+
+init:
+  ps: |
+        $ErrorActionPreference = "Stop"
+        Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
+        Import-Module '..\appveyor-tool.ps1'
+install:
+  ps: InstallRtools
+
+environment:
+  DISABLE_QUALITY_CHECK: true
+  PATH: C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\Git\cmd;C:\Program Files\7-Zip
+  DEPLOY_PROVIDER: bintray
+  BINTRAY_USER: jeroen
+  BINTRAY_TARGET: rtools
+  BUILD_URL: https://ci.appveyor.com/project/$(APPVEYOR_ACCOUNT_NAME)/$(APPVEYOR_PROJECT_NAME)/build/$(APPVEYOR_BUILD_VERSION)
+  matrix:
+    - MINGW_INSTALLS: mingw32
+    - MINGW_INSTALLS: mingw64
+
+matrix:
+  fast_finish: true
+
+build_script:
+  - rmdir /s /Q C:\OpenSSL-Win32 C:\OpenSSL-Win64  
+  - C:\msys64\usr\bin\pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade
+  - C:\msys64\usr\bin\bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/ci-build.sh"
+#  - C:\msys64\usr\bin\bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/fullindex.sh"
+
+test: off
+
+artifacts:
+  - path: artifacts\*
+    name: binaries
+  - path: sourcepkg\*
+    name: sources
