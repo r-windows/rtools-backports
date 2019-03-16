@@ -17,10 +17,8 @@ depends=("${MINGW_PACKAGE_PREFIX}-boost"
 makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
              "${MINGW_PACKAGE_PREFIX}-gcc")
 options=("staticlibs" "strip" "!buildflags")
-source=("${_realname}"::"git+https://github.com/apache/arrow"
-        "https://patch-diff.githubusercontent.com/raw/apache/arrow/pull/3923.patch")
-sha256sums=("SKIP"
-            "SKIP")
+source=("${_realname}"::"git+https://github.com/apache/arrow")
+sha256sums=("SKIP")
 
 cmake_build_type=release
 meson_build_type=debugoptimized
@@ -37,7 +35,7 @@ pkgver() {
 
 prepare() {
   pushd ${source_dir}
-  patch -p1 -N -i ${srcdir}/3923.patch
+  #patch -p1 -N -i ${srcdir}/3923.patch
   popd
 }
 
