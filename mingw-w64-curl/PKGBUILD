@@ -1,0 +1,117 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+_variant=-openssl
+#_variant=-winssl
+#_variant=-gnutls
+
+if [ "${_variant}" = "-openssl" ]; then
+  _namesuff=
+else
+  _namesuff="${_variant}"
+fi
+
+_realname=curl
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}${_namesuff}"
+pkgver=7.64.1
+pkgrel=9200
+pkgdesc="Command line tool and library for transferring data with URLs. (mingw-w64)"
+arch=('any')
+url="https://curl.haxx.se/"
+license=("MIT")
+makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
+depends=("${MINGW_PACKAGE_PREFIX}-libssh2"
+         "${MINGW_PACKAGE_PREFIX}-zlib"
+         "${MINGW_PACKAGE_PREFIX}-openssl")
+if [ -n "${_namesuff}" ]; then
+  provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+  conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+fi
+options=('staticlibs')
+source=("${url}/download/${_realname}-${pkgver}.tar.bz2")
+sha256sums=('4cc7c738b35250d0680f29e93e0820c4cb40035f43514ea3ec8d60322d41a45d')
+validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'  # Daniel Stenberg
+              '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'
+              '4461EAF0F8E9097F48AF0555F9FEAFF9D34A1BDB')
+
+prepare() {
+  cd "${_realname}-${pkgver}"
+  #rm -f lib/pathtools.h lib/pathtools.c > /dev/null 2>&1 || true
+  #patch -p1 -i "${srcdir}/0001-Make-cURL-relocatable.patch"
+  #autoreconf -vfi
+}
+
+build() {
+  local -a extra_config
+  if check_option "debug" "y"; then
+    extra_config+=( --enable-debug )
+  else
+    extra_config+=( --disable-debug )
+  fi
+  mkdir -p "${srcdir}/build-${CARCH}"
+  local -a _variant_config
+  if [ "${_variant}" = "-winssl" ]; then
+    _variant_config+=("--without-ssl")
+    _variant_config+=("--without-gnutls")
+    _variant_config+=("--with-winssl")
+    _variant_config+=('--without-nghttp2')
+    _variant_config+=("--without-ca-bundle")
+    _variant_config+=("--without-ca-path")
+    _variant_config+=("--without-librtmp")
+  elif [ "${_variant}" = "-gnutls" ]; then
+    _variant_config+=("--with-default-ssl-backend=schannel")
+    _variant_config+=("--without-ssl")
+    _variant_config+=("--with-gnutls")
+    _variant_config+=("--with-winssl")
+    _variant_config+=('--without-nghttp2')
+    _variant_config+=("--with-ca-bundle=${MINGW_PREFIX}/ssl/certs/ca-bundle.crt")
+    _variant_config+=("--with-librtmp")
+  elif [ "${_variant}" = "-openssl" ]; then
+    _variant_config+=("--without-gnutls")
+    _variant_config+=("--with-ssl")
+    _variant_config+=("--with-winssl")
+    _variant_config+=("--with-default-ssl-backend=schannel")    
+    _variant_config+=("--without-ca-bundle")
+    _variant_config+=("--without-nghttp2")
+    _variant_config+=("--without-librtmp")
+  fi
+
+  export curl_disallow_strtok_r="yes" # For rtools 4.6.3
+  export CC="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/gcc"
+  export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
+  export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
+  export CPPFLAGS="-I${MINGW_PREFIX}/include"
+  export LIBS="-L${MINGW_PREFIX}/libs"
+
+  cd "${srcdir}/build-${CARCH}"
+  ../${_realname}-${pkgver}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST} \
+    --without-random \
+    --enable-static \
+    --disable-shared \
+    --enable-sspi \
+    --enable-ldap \
+    --enable-ldaps \
+    --without-libidn2 \
+    --with-winidn \
+    --with-libssh2 \
+    --without-brotli \
+    --with-ldap-lib=wldap32 \
+    --without-libmetalink \
+    "${_variant_config[@]}" \
+    "${extra_config[@]}"
+# there's a bug with zsh completion generation script and Windows.
+# curl has to specified with the file extension.
+  sed -i "s|\/curl > \$\@|\/curl\$\{EXEEXT\} > \$\@|" scripts/Makefile
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${CARCH}"
+  make DESTDIR="${pkgdir}" install
+  
+  local PREFIX_DEPS=$(cygpath -am ${MINGW_PREFIX})
+  sed -s "s|${PREFIX_DEPS}|${MINGW_PREFIX}|g" -i ${pkgdir}${MINGW_PREFIX}/bin/curl-config
+}
