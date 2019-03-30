@@ -81,6 +81,10 @@ build() {
 
   #export OpenBLAS_HOME=${MINGW_PREFIX}
 
+  # to build the extra modules add:
+  #    -DOPENCV_EXTRA_MODULES_PATH=../${_realname}_contrib-${pkgver}/modules \
+
+
   MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
   ${MINGW_PREFIX}/bin/cmake.exe -Wno-dev \
     -G"MSYS Makefiles" \
@@ -115,7 +119,6 @@ build() {
     -DENABLE_PRECOMPILED_HEADERS=OFF \
     -DBUILD_opencv_python2=OFF \
     -DBUILD_opencv_python3=OFF \
-    -DOPENCV_EXTRA_MODULES_PATH=../${_realname}_contrib-${pkgver}/modules \
     -DBUILD_INFO_SKIP_EXTRA_MODULES=ON \
     -DOPENCV_GENERATE_PKGCONFIG=ON \
     ../${_realname}-${pkgver}
