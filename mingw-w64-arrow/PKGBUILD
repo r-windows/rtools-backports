@@ -1,5 +1,4 @@
-# Maintainer: Jeroen Ooms
-
+# Maintainer: Jeroen Ooms 
 _realname=arrow
 pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
@@ -21,7 +20,6 @@ source=("https://archive.apache.org/dist/arrow/arrow-${pkgver}/apache-arrow-${pk
 sha256sums=("ac2a77dd9168e9892e432c474611e86ded0be6dfe15f689c948751d37f81391a")
 
 cmake_build_type=release
-meson_build_type=debugoptimized
 
 #source_dir=${_realname}-${pkgver}
 source_dir=apache-${_realname}-${pkgver}
