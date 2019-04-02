@@ -11,7 +11,6 @@ arch=('any')
 url="https://www.boost.org/"
 license=('custom')
 depends=("${MINGW_PACKAGE_PREFIX}-bzip2"
-#         "${MINGW_PACKAGE_PREFIX}-icu"
          "${MINGW_PACKAGE_PREFIX}-zlib")
 makedepends=("${MINGW_PACKAGE_PREFIX}-gcc")
 options=('strip' 'buildflags' 'staticlibs')
@@ -114,7 +113,7 @@ build() {
   export CC="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/gcc"
   export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
   export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
-  export CPPFLAGS="-I${MINGW_PREFIX}/include"
+  #export CPPFLAGS="-I${MINGW_PREFIX}/include"
   export LIBS="-L${MINGW_PREFIX}/libs"
 
   local PREFIX_DEPS=$(cygpath -am ${MINGW_PREFIX})
@@ -130,7 +129,7 @@ build() {
   #echo "using python : ${_py3ver} : ${PREFIX_DEPS}/bin/python3.exe : ${PREFIX_DEPS}/include/python${_py3ver}m : ${PREFIX_DEPS}/lib/python${_py3ver}/config-${_py3ver}m ;" >> ./tools/build/src/user-config.jam
   #echo "using gcc : : ${PREFIX_DEPS}/bin/g++.exe : <rc>${PREFIX_DEPS}/bin/windres.exe ;" >> ./tools/build/src/user-config.jam
 
-  ./bootstrap.sh --with-toolset=gcc --with-libraries=filesystem,regex,system
+  ./bootstrap.sh --with-toolset=gcc
 
   case ${CARCH} in
     i686)
@@ -156,11 +155,10 @@ build() {
     threadapi=win32 \
     toolset=gcc \
     variant=${variant} \
-    --without-python \
+    --with-filesystem --with-system --with-regex \
     --debug-configuration \
     --prefix=${MINGW_PREFIX} \
     --layout=tagged \
-    --without-mpi \
     -sNO_ICU \
     -sICONV_PATH=${MINGW_PREFIX} \
     -sICONV_LINK="-L${MINGW_PREFIX}/lib -liconv" \
@@ -201,10 +199,9 @@ package() {
       threadapi=win32 \
       toolset=gcc \
       variant=${variant} \
-      --without-python \
+      --with-filesystem --with-system --with-regex \
       --prefix=${pkgdir}${MINGW_PREFIX} \
       --layout=tagged \
-      --without-mpi \
       -sNO_ICU \
       -sICONV_PATH=${MINGW_PREFIX} \
       -sICONV_LINK="-L${MINGW_PREFIX}/lib -liconv" \

@@ -22,7 +22,7 @@ pacman --noconfirm -Scc
 pacman --noconfirm -Syyuu
 
 # Install core build stuff
-pacman --noconfirm -S mingw-w64-{i686,x86_64}-{crt,winpthreads,gcc,libtre,pkg-config,xz}
+pacman --noconfirm -S mingw-w64-{i686,x86_64}-{pkg-config,xz}
 
 # Detect changed packages
 list_commits  || failure 'Could not detect added commits'
