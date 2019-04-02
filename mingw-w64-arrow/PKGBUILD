@@ -48,7 +48,7 @@ build() {
   export CC="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/gcc"
   export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
   export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
-  #export CPPFLAGS="-I${MINGW_PREFIX}/include"
+  export CPPFLAGS="-I${MINGW_PREFIX}/include"
   export LIBS="-L${MINGW_PREFIX}/libs"  
 
   MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
@@ -57,8 +57,6 @@ build() {
     -G "MSYS Makefiles" \
     -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
     -DCMAKE_BUILD_TYPE=${cmake_build_type} \
-    -DCMAKE_C_FLAGS_DEBUG="-O2 -Wall  -mtune=generic" \
-    -DCMAKE_CXX_FLAGS_DEBUG="-O2 -Wall  -mtune=generic" \
     -DARROW_BUILD_STATIC=ON \
     -DARROW_BUILD_TESTS=OFF \
     -DARROW_PARQUET=ON \
