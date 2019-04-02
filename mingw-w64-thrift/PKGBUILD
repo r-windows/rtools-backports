@@ -9,9 +9,8 @@ pkgdesc="Framework for scalable cross-language services development (mingw-w64)"
 arch=("any")
 url="https://thrift.apache.org/"
 license=("Apache-2.0")
-depends=("${MINGW_PACKAGE_PREFIX}-boost"
-         "${MINGW_PACKAGE_PREFIX}-openssl"
-		 "${MINGW_PACKAGE_PREFIX}-zlib")
+depends=("${MINGW_PACKAGE_PREFIX}-openssl"
+         "${MINGW_PACKAGE_PREFIX}-zlib")
 makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
              "bison"
              "flex"
@@ -41,12 +40,10 @@ build() {
     -DWITH_STATIC_LIB="ON" \
     -DCMAKE_BUILD_TYPE="Release" \
     -DBUILD_COMPILER="ON" \
-    -DBUILD_TESTING="ON" \
+    -DBUILD_TESTING="OFF" \
     -DBUILD_EXAMPLES="ON" \
     -DBUILD_TUTORIALS="OFF" \
     -DWITH_STDTHREADS="OFF" \
-    -DWITH_BOOSTTHREADS="OFF" \
-    -DWITH_BOOST_STATIC="ON" \
     -DWITH_LIBEVENT="OFF" \
     -DWITH_OPENSSL="ON" \
     -DOPENSSL_USE_STATIC_LIBS="ON" \
