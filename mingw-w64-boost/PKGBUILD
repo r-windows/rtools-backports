@@ -154,6 +154,8 @@ build() {
     threading=multi \
     threadapi=win32 \
     toolset=gcc \
+    cflags="-O2 -mtune=generic" \
+    cxxflags="-std=gnu++11 -O2 -mtune=generic" \
     variant=${variant} \
     --with-filesystem --with-system --with-regex \
     --debug-configuration \
@@ -198,6 +200,8 @@ package() {
       threading=multi \
       threadapi=win32 \
       toolset=gcc \
+      cflags="-O2 -mtune=generic" \
+      cxxflags="-std=gnu++11 -O2 -mtune=generic" \
       variant=${variant} \
       --with-filesystem --with-system --with-regex \
       --prefix=${pkgdir}${MINGW_PREFIX} \
