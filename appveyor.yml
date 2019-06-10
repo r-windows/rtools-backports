@@ -17,7 +17,11 @@ environment:
   BUILD_URL: https://ci.appveyor.com/project/$(APPVEYOR_ACCOUNT_NAME)/$(APPVEYOR_PROJECT_NAME)/build/$(APPVEYOR_BUILD_VERSION)
   matrix:
     - MINGW_INSTALLS: mingw32
+      BINTRAY_REPOSITORY: backports
+      PACMAN_REPOSITORY: mingw32-backports
     - MINGW_INSTALLS: mingw64
+      BINTRAY_REPOSITORY: backports
+      PACMAN_REPOSITORY: mingw64-backports
 
 matrix:
   fast_finish: true
@@ -35,3 +39,18 @@ artifacts:
     name: binaries
   - path: sourcepkg\*
     name: sources
+
+deploy:
+  - provider: BinTray
+    username: $(BINTRAY_USER)
+    subject: $(BINTRAY_TARGET)
+    repo: $(BINTRAY_REPOSITORY)
+    package: $(MINGW_INSTALLS)
+    version: latest
+    publish: true
+    override: true
+    api_key:
+      secure: rKoNWcAgUrOM7QLX4cEvA1iKoY2DR4ps/1PRveq7rJknjQjcpKx8xGs42CJPhDwJ
+    on:
+      branch: master
+    artifact: binaries
