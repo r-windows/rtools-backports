@@ -1,6 +1,6 @@
 # Rtools Backports [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/r-windows/rtools-backports?branch=master)](https://ci.appveyor.com/project/jeroen/rtools-backports)
 
-Attempts to backport libs with the old Rtools35 gcc-4.9.3 toolchain.
+Backported libraries with the Rtools35 gcc-4.9.3 legacy toolchain.
 
 ## What is this
 
