@@ -17,7 +17,7 @@ sha256sums=('676165c54319d2f03da4349cbd7344eb430b225fe867a90191d848dc64788008')
 
 prepare() {
   cd "${srcdir}/${_realname}-${pkgver}"
-  sed -i.bak 's/noexcept = default/= default/g' src/iso19111/coordinateoperation.cpp
+  sed -i.bak 's/noexcept = default/noexcept/g' src/iso19111/coordinateoperation.cpp
 }
 
 groups=("rtools-${_realname}")
