@@ -12,11 +12,14 @@ license=('MIT')
 depends=("${MINGW_PACKAGE_PREFIX}-sqlite3")
 makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-libtool")
 options=('staticlibs' 'strip')
-source=("http://download.osgeo.org/proj/${_realname}-${pkgver}.tar.gz")
-sha256sums=('676165c54319d2f03da4349cbd7344eb430b225fe867a90191d848dc64788008')
+source=("http://download.osgeo.org/proj/${_realname}-${pkgver}.tar.gz"
+        "https://patch-diff.githubusercontent.com/raw/OSGeo/PROJ/pull/1513.patch")
+sha256sums=('676165c54319d2f03da4349cbd7344eb430b225fe867a90191d848dc64788008'
+            'SKIP')
 
 prepare() {
   cd "${srcdir}/${_realname}-${pkgver}"
+  patch -Np1 -i "${srcdir}/1513.patch"
 }
 
 groups=("rtools-${_realname}")
@@ -25,7 +28,12 @@ build() {
   [[ -d "${srcdir}/build-${MINGW_CHOST}" ]] && rm -rf "${srcdir}/build-${MINGW_CHOST}"
   mkdir "${srcdir}/build-${MINGW_CHOST}" && cd "${srcdir}/build-${MINGW_CHOST}"
 
-  export CXX="g++ -D_GLIBCXX_USE_CXX11_ABI=0"
+  export CC="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/gcc"
+  export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
+  export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
+  export CPPFLAGS="-I${MINGW_PREFIX}/include"
+  export LIBS="-L${MINGW_PREFIX}/libs" 
+
   ../${_realname}-${pkgver}/configure \
     --prefix=${MINGW_PREFIX} \
     --build=${MINGW_CHOST} \
