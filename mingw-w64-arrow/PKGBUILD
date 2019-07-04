@@ -17,15 +17,12 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
              "${MINGW_PACKAGE_PREFIX}-gcc")
 options=("staticlibs" "strip" "!buildflags")
 
-# For released version:
-#source=("https://archive.apache.org/dist/arrow/arrow-${pkgver}/apache-arrow-${pkgver}.tar.gz")
-#sha256sums=("ac2a77dd9168e9892e432c474611e86ded0be6dfe15f689c948751d37f81391a")
-#source_dir=apache-${_realname}-${pkgver}
-
-# Build from git (remove the #tag=... to build from master)
-source=("${_realname}"::"git+https://github.com/apache/arrow#tag=apache-arrow-${pkgver}")
+# Uncomment to build from master
+#source=("${_realname}"::"git+https://github.com/apache/arrow")
+#source_dir=${_realname}
+source=("${_realname}-${pkgver}.tar.gz"::"https://github.com/apache/arrow/archive/apache-arrow-${pkgver}.tar.gz")
+source_dir="arrow-apache-${_realname}-${pkgver}"
 sha256sums=("SKIP")
-source_dir=${_realname}
 
 pkgver() {
   cd "$source_dir"
@@ -79,8 +76,8 @@ build() {
     -Ddouble-conversion_ROOT="${MINGW_PREFIX}" \
     -DThrift_ROOT="${MINGW_PREFIX}"
 
-  # Work around a broken configure test
-  # sed -i 's/-fPIC/ /g' flatbuffers_ep-prefix/src/flatbuffers_ep-stamp/flatbuffers_ep-configure-RELEASE.cmake
+  # Workaround for broken configure test in bundled flatbuffers
+  sed -i 's/-fPIC/ /g' flatbuffers_ep-prefix/src/flatbuffers_ep-stamp/flatbuffers_ep-configure-RELEASE.cmake
 
   make
   popd
