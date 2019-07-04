@@ -2,8 +2,8 @@
 _realname=arrow
 pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
-pkgver=0.13.9000
-pkgrel=8000
+pkgver=0.14.0
+pkgrel=1
 pkgdesc="Apache Arrow is a cross-language development platform for in-memory data (mingw-w64)"
 arch=("any")
 url="https://arrow.apache.org/"
@@ -11,28 +11,18 @@ license=("Apache-2.0")
 depends=("${MINGW_PACKAGE_PREFIX}-boost"
          "${MINGW_PACKAGE_PREFIX}-zlib"
          "${MINGW_PACKAGE_PREFIX}-double-conversion"
-         "${MINGW_PACKAGE_PREFIX}-snappy"         
-         "${MINGW_PACKAGE_PREFIX}-thrift"
-         "${MINGW_PACKAGE_PREFIX}-zlib")
+         "${MINGW_PACKAGE_PREFIX}-snappy"
+         "${MINGW_PACKAGE_PREFIX}-thrift")
 makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
              "${MINGW_PACKAGE_PREFIX}-gcc")
 options=("staticlibs" "strip" "!buildflags")
 
-# For released version:
-#source=("https://archive.apache.org/dist/arrow/arrow-${pkgver}/apache-arrow-${pkgver}.tar.gz")
-#sha256sums=("ac2a77dd9168e9892e432c474611e86ded0be6dfe15f689c948751d37f81391a")
-#source_dir=apache-${_realname}-${pkgver}
-
-# For git version
-source=("${_realname}"::"git+https://github.com/apache/arrow")
+# Uncomment to build from master
+#source=("${_realname}"::"git+https://github.com/apache/arrow")
+#source_dir=${_realname}
+source=("${_realname}-${pkgver}.tar.gz"::"https://github.com/apache/arrow/archive/apache-arrow-${pkgver}.tar.gz")
+source_dir="arrow-apache-${_realname}-${pkgver}"
 sha256sums=("SKIP")
-source_dir=${_realname}
-
-# Other stuff
-cmake_build_type=release
-meson_build_type=debugoptimized
-cpp_build_dir=build-${CARCH}-cpp
-c_glib_build_dir=build-${CARCH}-c-glib
 
 pkgver() {
   cd "$source_dir"
@@ -45,12 +35,12 @@ prepare() {
 }
 
 build() {
-  [[ -d ${cpp_build_dir} ]] && rm -rf ${cpp_build_dir}
-  mkdir -p ${cpp_build_dir}
-  pushd ${cpp_build_dir}
+  [[ -d "build-${CARCH}-cpp" ]] && rm -rf "build-${CARCH}-cpp"
+  mkdir -p "build-${CARCH}-cpp"
+  pushd "build-${CARCH}-cpp"
 
   # Workaround to fix static libparquet
-  export CXXFLAGS="-DARROW_STATIC"
+  #export CXXFLAGS="-DARROW_STATIC"
   
   export CC="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/gcc"
   export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
@@ -63,7 +53,7 @@ build() {
     ../${source_dir}/cpp \
     -G "MSYS Makefiles" \
     -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
-    -DCMAKE_BUILD_TYPE=${cmake_build_type} \
+    -DCMAKE_BUILD_TYPE="release" \
     -DARROW_BUILD_STATIC=ON \
     -DARROW_BUILD_TESTS=OFF \
     -DARROW_PARQUET=ON \
@@ -86,6 +76,7 @@ build() {
     -Ddouble-conversion_ROOT="${MINGW_PREFIX}" \
     -DThrift_ROOT="${MINGW_PREFIX}"
 
+  # Workaround for broken configure test in bundled flatbuffers
   sed -i 's/-fPIC/ /g' flatbuffers_ep-prefix/src/flatbuffers_ep-stamp/flatbuffers_ep-configure-RELEASE.cmake
 
   make
@@ -103,7 +94,7 @@ check() {
 }
 
 package() {
-  make -C ${cpp_build_dir} DESTDIR="${pkgdir}" install
+  make -C "build-${CARCH}-cpp" DESTDIR="${pkgdir}" install
 
   local PREFIX_DEPS=$(cygpath -am ${MINGW_PREFIX})
   pushd "${pkgdir}${MINGW_PREFIX}/lib/pkgconfig"
