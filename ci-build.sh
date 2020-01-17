@@ -42,6 +42,7 @@ execute 'Approving recipe quality' check_recipe_quality
 rm -f /mingw32/lib/*.dll.a
 rm -f /mingw64/lib/*.dll.a
 export PKG_CONFIG="/${MINGW_INSTALLS}/bin/pkg-config --static"
+export PKGEXT='.pkg.tar.xz'
 
 for package in "${packages[@]}"; do
     execute 'Building binary' makepkg-mingw --noconfirm --noprogressbar --skippgpcheck --nocheck --syncdeps --rmdeps --cleanbuild

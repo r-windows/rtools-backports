@@ -1,0 +1,78 @@
+# Maintainer: Alexey Pavlov <Alexpux@gmail.com>
+# Contributer: Zach Bacon <11doctorwhocanada@gmail.com>
+# Contributer: wirx6 <wirx654@gmail.com>
+
+_realname=ffmpeg
+pkgbase="mingw-w64-${_realname}"
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=4.2.2
+pkgrel=2
+pkgdesc="Complete and free Internet live audio and video broadcasting solution (mingw-w64)"
+arch=('any')
+url="https://ffmpeg.org/"
+license=('GPL')
+options=('staticlibs' 'strip')
+depends=("${MINGW_PACKAGE_PREFIX}-bzip2"
+        "${MINGW_PACKAGE_PREFIX}-lame"
+        "${MINGW_PACKAGE_PREFIX}-libvorbis"
+        "${MINGW_PACKAGE_PREFIX}-libvpx"
+        "${MINGW_PACKAGE_PREFIX}-x264"
+        "${MINGW_PACKAGE_PREFIX}-xvidcore"
+        "${MINGW_PACKAGE_PREFIX}-zlib")
+makedepends=("${MINGW_PACKAGE_PREFIX}-gcc"
+             "${MINGW_PACKAGE_PREFIX}-pkg-config"
+             "${MINGW_PACKAGE_PREFIX}-nasm")
+source=(https://ffmpeg.org/releases/${_realname}-${pkgver}.tar.xz{,.asc})
+validpgpkeys=('FCF986EA15E6E293A5644F10B4322F04D67658D8')
+sha256sums=('cb754255ab0ee2ea5f66f8850e1bd6ad5cac1cd855d0a2f4990fb8c668b0d29c'
+            'SKIP')
+
+prepare() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  sed -i 's/mkstemp/blabbla/g' configure
+}
+
+build() {
+  [[ -d "${srcdir}/build-${MINGW_CHOST}" ]] && rm -rf "${srcdir}/build-${MINGW_CHOST}"
+  mkdir -p "${srcdir}/build-${MINGW_CHOST}" && cd "${srcdir}/build-${MINGW_CHOST}"
+
+  # Fix using SRT headers
+  CFLAGS+=" -DWIN32"
+  CXXFLAGS+=" -DWIN32"
+
+  export CC="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/gcc"
+  export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++ -std=gnu++11"
+  export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
+  export CPPFLAGS="-I${MINGW_PREFIX}/include"
+  export LIBS="-L${MINGW_PREFIX}/lib"
+
+  ../${_realname}-${pkgver}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --target-os=mingw32 \
+    --arch=${CARCH%%-*} \
+    --disable-debug \
+    --enable-static \
+    --enable-dxva2 \
+    --disable-shared \
+    --enable-gpl \
+    --enable-libmp3lame \
+    --enable-libx264 \
+    --enable-libxvid \
+    --enable-libvorbis \
+    --enable-libvpx \
+    --enable-hardcoded-tables \
+    --enable-version3 \
+    --enable-zlib \
+    --disable-lzma \
+    --disable-doc \
+    --extra-libs="$(pkg-config --libs --static vorbis)"
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${MINGW_CHOST}"
+  make DESTDIR="${pkgdir}" install
+  local PREFIX_DEPS=$(cygpath -am ${MINGW_PREFIX})
+  find ${pkgdir}${MINGW_PREFIX}/lib/pkgconfig -name *.pc -exec sed -i -e"s|${PREFIX_DEPS}|${MINGW_PREFIX}|g" {} \;
+}
