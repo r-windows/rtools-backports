@@ -2,17 +2,18 @@
 _realname=arrow
 pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
-pkgver=0.15.1
+pkgver=0.16.0
 pkgrel=1
 pkgdesc="Apache Arrow is a cross-language development platform for in-memory data (mingw-w64)"
 arch=("any")
 url="https://arrow.apache.org/"
 license=("Apache-2.0")
 depends=("${MINGW_PACKAGE_PREFIX}-boost"
-         "${MINGW_PACKAGE_PREFIX}-zlib"
-         "${MINGW_PACKAGE_PREFIX}-double-conversion"
+         "${MINGW_PACKAGE_PREFIX}-lz4"
          "${MINGW_PACKAGE_PREFIX}-snappy"
-         "${MINGW_PACKAGE_PREFIX}-thrift")
+         "${MINGW_PACKAGE_PREFIX}-thrift"
+         "${MINGW_PACKAGE_PREFIX}-zlib"
+         "${MINGW_PACKAGE_PREFIX}-zstd")
 makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
              "${MINGW_PACKAGE_PREFIX}-gcc")
 options=("staticlibs" "strip" "!buildflags")
@@ -22,7 +23,7 @@ options=("staticlibs" "strip" "!buildflags")
 #source_dir=${_realname}
 source=("${_realname}-${pkgver}.tar.gz"::"http://apache.osuosl.org/arrow/arrow-${pkgver}/apache-arrow-${pkgver}.tar.gz")
 source_dir="apache-${_realname}-${pkgver}"
-sha256sums=("9a2c58c72310eafebb4997244cbeeb8c26696320d0ae3eb3e8512f75ef856fc9")
+sha256sums=("261992de4029a1593195ff4000501503bd403146471b3168bd2cc414ad0fb7f5")
 
 pkgver() {
   cd "$source_dir"
@@ -39,9 +40,6 @@ build() {
   mkdir -p "build-${CARCH}-cpp"
   pushd "build-${CARCH}-cpp"
 
-  # Workaround to fix static libparquet
-  #export CXXFLAGS="-DARROW_STATIC"
-
   export CC="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/gcc"
   export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
   export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
@@ -52,28 +50,25 @@ build() {
     ${MINGW_PREFIX}/bin/cmake.exe \
     ../${source_dir}/cpp \
     -G "MSYS Makefiles" \
-    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
-    -DCMAKE_BUILD_TYPE="release" \
-    -DARROW_BUILD_STATIC=ON \
-    -DARROW_BUILD_TESTS=OFF \
-    -DARROW_PARQUET=ON \
-    -DARROW_PLASMA=OFF \
-    -DARROW_HDFS=OFF \
-    -DARROW_PYTHON=OFF \
     -DARROW_BOOST_USE_SHARED=OFF \
-    -DARROW_WITH_SNAPPY=ON \
-    -DARROW_WITH_ZSTD=OFF \
-    -DARROW_WITH_LZ4=OFF \
+    -DARROW_BUILD_STATIC=ON \
+    -DARROW_BUILD_SHARED=OFF \
+    -DARROW_BUILD_UTILITIES=OFF \
+    -DARROW_COMPUTE=ON \
+    -DARROW_CSV=ON \
+    -DARROW_DATASET=ON \
+    -DARROW_FILESYSTEM=ON \
+    -DARROW_HDFS=OFF \
     -DARROW_JEMALLOC=OFF \
-    -DARROW_BUILD_SHARED=OFF\
-    -DARROW_BOOST_VENDORED=OFF \
-    -DARROW_WITH_ZLIB=ON \
-    -DARROW_WITH_BROTLI=OFF \
+    -DARROW_JSON=ON \
+    -DARROW_PARQUET=ON \
     -DARROW_USE_GLOG=OFF \
-    -DARROW_BUILD_UTILITIES=ON \
-    -DPARQUET_BUILD_EXECUTABLES=ON \
-    -DARROW_TEST_LINKAGE="static" \
-    -Ddouble-conversion_ROOT="${MINGW_PREFIX}" \
+    -DARROW_WITH_LZ4=ON \
+    -DARROW_WITH_SNAPPY=ON \
+    -DARROW_WITH_ZLIB=ON \
+    -DARROW_WITH_ZSTD=ON \
+    -DCMAKE_BUILD_TYPE="release" \
+    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
     -DThrift_ROOT="${MINGW_PREFIX}"
 
   # Workaround for broken configure test in bundled flatbuffers
