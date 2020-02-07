@@ -73,9 +73,6 @@ build() {
     -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
     -DThrift_ROOT="${MINGW_PREFIX}"
 
-  # Workaround for broken configure test in bundled flatbuffers
-  sed -i 's/-fPIC/ /g' flatbuffers_ep-prefix/src/flatbuffers_ep-stamp/flatbuffers_ep-configure-RELEASE.cmake
-
   make
   popd
 }
