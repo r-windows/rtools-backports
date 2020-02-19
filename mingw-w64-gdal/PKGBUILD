@@ -104,14 +104,14 @@ build() {
   export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
   export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
   export CPPFLAGS="-I${MINGW_PREFIX}/include -DPCRE_STATIC"
-  export LIBS="-L${MINGW_PREFIX}/lib"
+  #export LIBS="-L${MINGW_PREFIX}/lib"
   export PKG_CONFIG="${MINGW_PREFIX}/bin/pkg-config --static"
   ##-DCURL_STATICLIB -DLIBXML_STATIC -DPCRE_STATIC -DOPJ_STATIC -DJAS_DLL=0
   #export CPPFLAGS=""
   CFLAGS+=" -fno-strict-aliasing"
   #LIBS="-lgeos_c -lgeos -lsqlite3 -lfreexl -lz -liconv -lstdc++ -lws2_32" \
   #GEOS_LIBS="-lgeos_c -lgeos -lstdc++ -lm" \
-  PQ_LIBS="-lpq -lpgport -lpgcommon -lssl -lcrypto -lwsock32 -lsecur32 -lws2_32 -lgdi32 -lcrypt32 -lwldap32" \
+  PQ_LIBS="-L${MINGW_PREFIX}/lib -lpq -lpgport -lpgcommon -lssl -lcrypto -lwsock32 -lsecur32 -lws2_32 -lgdi32 -lcrypt32 -lwldap32" \
   ./configure \
     --build=${MINGW_CHOST} \
     --host=${MINGW_CHOST} \
