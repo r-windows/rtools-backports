@@ -159,7 +159,7 @@ build() {
     echo "Configure script had linking errors, please fix these first"
     echo "-----------------------"
     cat config.log
-    exit 1
+    #exit 1
   fi
 
   #read -n1 -r -p "Press any key to continue..." key
