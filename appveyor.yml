@@ -24,7 +24,7 @@ environment:
       PACMAN_REPOSITORY: mingw64-backports
 
 matrix:
-  fast_finish: true
+  fast_finish: false
 
 build_script:
   - rmdir /s /Q C:\OpenSSL-Win32 C:\OpenSSL-Win64  
