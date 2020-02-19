@@ -156,6 +156,8 @@ build() {
   grep -o "[^/]*\.a.*undefined reference to.*$" config.log | sed 's/(.*)//g'
   if [[ "$(grep '\.a.*undefined reference to' config.log)" ]]; then
     echo "Configure script had linking errors, please fix these first"
+    echo "-----------------------"
+    cat config.log
     exit 1
   fi
 
