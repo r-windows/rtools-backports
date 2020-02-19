@@ -102,7 +102,7 @@ build() {
   export CC="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/gcc"
   export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
   export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
-  export CPPFLAGS="-I${MINGW_PREFIX}/include -DPCRE_STATIC"
+  export CPPFLAGS="-DPCRE_STATIC"
   #export LIBS="-L${MINGW_PREFIX}/lib"
   export PKG_CONFIG="${MINGW_PREFIX}/bin/pkg-config --static"
   ##-DCURL_STATICLIB -DLIBXML_STATIC -DPCRE_STATIC -DOPJ_STATIC -DJAS_DLL=0
