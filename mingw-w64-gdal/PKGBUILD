@@ -145,9 +145,9 @@ build() {
     --with-hdf5="${MINGW_PREFIX}" \
     --with-hdf4="${MINGW_PREFIX}" \
     --with-netcdf="${MINGW_PREFIX}" \
-    --without-crypto \
     --with-spatialite="yes" \
     --with-liblzma \
+    --without-crypto # crypto requires mingw-w64 v4+ and probably windows 7
 
   sed -i GDALmake.opt -e "s|EXE_DEP_LIBS.*|EXE_DEP_LIBS = \$\(GDAL_SLIB\)|g"
   sed -i GNUmakefile -e "s|\$(GDAL_ROOT)\/||g"
@@ -158,7 +158,7 @@ build() {
   if [[ "$(grep '\.a.*undefined reference to' config.log)" ]]; then
     echo "Configure script had linking errors, please fix these first"
     echo "-----------------------"
-    cat config.log
+    #cat config.log
     #exit 1
   fi
 
