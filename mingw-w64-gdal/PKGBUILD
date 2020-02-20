@@ -145,7 +145,7 @@ build() {
     --with-hdf5="${MINGW_PREFIX}" \
     --with-hdf4="${MINGW_PREFIX}" \
     --with-netcdf="${MINGW_PREFIX}" \
-    --with-crypto \
+    --without-crypto \
     --with-spatialite="yes" \
     --with-liblzma \
 
