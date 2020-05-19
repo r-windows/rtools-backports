@@ -24,7 +24,7 @@ options=("staticlibs" "strip" "!buildflags")
 # Uncomment to build from rc
 # source=("${_realname}-${pkgver}.tar.gz"::"https://dist.apache.org/repos/dist/dev/arrow/apache-arrow-${pkgver}-rc0/apache-arrow-${pkgver}.tar.gz")
 # This is the official release
-source=("${_realname}-${pkgver}.tar.gz"::"https://www.apache.org/dyn/closer.lua?action=download&filename=arrow/arrow-${pkgver}/apache-arrow-${pkgver}.tar.gz")source_dir="apache-${_realname}-${pkgver}"
+source=("${_realname}-${pkgver}.tar.gz"::"https://downloads.apache.org/arrow/arrow-${pkgver}/apache-arrow-${pkgver}.tar.gz")
 source_dir="apache-${_realname}-${pkgver}"
 sha256sums=("cbc51c343bca08b10f7f1b2ef15cb15057c30e5e9017cfcee18337b7e2da9ea2")
 
