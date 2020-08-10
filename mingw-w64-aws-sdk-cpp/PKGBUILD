@@ -36,8 +36,15 @@ prepare() {
 build() {
   [[ -d "${srcdir}"/build-${CARCH} ]] && rm -rf "${srcdir}"/build-${CARCH}
   mkdir -p "${srcdir}"/build-${CARCH} && cd "${srcdir}"/build-${CARCH}
+
   export CFLAGS="-D_WIN32_WINNT=0x0600"
   export CXXFLAGS="-D_WIN32_WINNT=0x0600"
+  export CC="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/gcc"
+  export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
+  export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
+  export CPPFLAGS="-I${MINGW_PREFIX}/include"
+  export LIBS="-L${MINGW_PREFIX}/lib"
+
   MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=;-DCMAKE_PREFIX_PATH=" \
     ${MINGW_PREFIX}/bin/cmake \
       -G'MSYS Makefiles' \
