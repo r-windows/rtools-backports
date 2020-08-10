@@ -55,6 +55,7 @@ build() {
       -DBUILD_ONLY="config;s3;transfer" \
       -DENABLE_UNITY_BUILD=ON \
       -DAUTORUN_UNIT_TESTS=OFF \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=OFF \
       ../${_realname}-${pkgver}
 
   make
