@@ -28,6 +28,10 @@ jobs:
           install: git
           update: true
 
+      - uses: r-lib/actions/setup-r@master
+        with:
+          r-version: 3.6
+
       - name: CI-Build
         run: MINGW_INSTALLS=${{ matrix.msystem }} ./ci-build.sh
         env:
