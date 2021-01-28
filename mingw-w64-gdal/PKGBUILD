@@ -100,6 +100,8 @@ prepare() {
 build() {
   cd "${srcdir}/build-${MINGW_CHOST}"
 
+# Elastic driver disabled, see https://github.com/OSGeo/gdal/issues/3414
+
   export CC="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/gcc"
   export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
   export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
@@ -117,6 +119,7 @@ build() {
     --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
     --prefix=${MINGW_PREFIX} \
+    --disable-driver-elastic \
     --enable-static \
     --disable-shared \
     --disable-debug \
