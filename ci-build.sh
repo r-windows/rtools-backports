@@ -14,7 +14,7 @@ pacman --noconfirm -Rcsu mingw-w64-{i686,x86_64}-toolchain gcc pkg-config
 cp -f pacman.conf /etc/pacman.conf
 
 # Temp hack for weird msys2 flag
-sed -i 's/,--default-image-base-high//' /etc/makepkg_mingw64.conf
+sed -i 's/,--default-image-base-high//' /etc/makepkg_mingw.conf
 
 pacman --noconfirm -Scc
 pacman --noconfirm -Syyu

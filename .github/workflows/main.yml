@@ -39,18 +39,33 @@ jobs:
           BUILD_URL: dummy
           DEPLOY_PROVIDER: bintray
           BINTRAY_TARGET: rtools
-          BINTRAY_REPOSITORY: ${{ matrix.msystem }}
-          PACMAN_REPOSITORY: ${{ matrix.msystem }}
+          BINTRAY_REPOSITORY: backports
+          PACMAN_REPOSITORY: ${{ matrix.msystem }}-backports
           BINTRAY_PACKAGE: ${{ matrix.msystem }}
 
       - name: "Upload binary package"
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.msystem }}-repo
+          name: ${{ matrix.msystem }}-backports
           path: artifacts/
 
-      - name: "Upload source package"
-        uses: actions/upload-artifact@v2
-        with:
-          name: sources
-          path: sourcepkg/
+  deploy:
+    name: Deploy to staging server
+    runs-on: ubuntu-20.04
+    needs: [build]
+    if: success() && github.ref == 'refs/heads/master'
+    steps:
+      - name: Get artifacts for deployment
+        uses: actions/download-artifact@v2
+      - id: deployment
+        name: Uploading files
+        run: |
+          ls -ltrR
+          mkdir -p ~/.ssh
+          echo "StrictHostKeyChecking no" > ~/.ssh/config
+          echo "${STAGINGKEY}" > ~/.ssh/id_rsa && chmod 400 ~/.ssh/id_rsa
+          echo 'put -pr .' | sftp "${STAGINGUSER}@ftp.opencpu.org:/rtools"
+          rm -f ~/.ssh/id_rsa
+        env:
+          STAGINGUSER: ${{ secrets.STAGINGUSER }}
+          STAGINGKEY: ${{ secrets.STAGINGKEY }}
