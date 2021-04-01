@@ -1,0 +1,41 @@
+# Maintainer: Jeroen Ooms <jeroenooms@gmail.com>
+
+_realname=Cbc
+pkgbase=mingw-w64-coinor-cbc
+pkgname=("${MINGW_PACKAGE_PREFIX}-coinor-cbc")
+pkgver=2.10.5
+pkgrel=9100
+pkgdesc="Coin-or branch and cut (mingw-w64)"
+arch=('any')
+url='http://www.coin-or.org'
+license=('EPL-2.0')
+source=("https://www.coin-or.org/download/source/${_realname}/${_realname}-${pkgver}.tgz")
+sha256sums=('da1a945648679b21ba56b454b81e939451dc7951d9beb3c3e14f18f64dde6972')
+groups=("rtools-coinor-cbc")
+makedepends=("${MINGW_PACKAGE_PREFIX}-gcc-fortran")
+
+build() {
+  cd "$srcdir"/${_realname}-${pkgver}
+  [[ -d "${srcdir}"/build-${CARCH} ]] && rm -rf "${srcdir}"/build-${CARCH}
+  mkdir -p "${srcdir}"/build-${CARCH} && cd "${srcdir}"/build-${CARCH}
+
+  export CC="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/gcc"
+  export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
+  export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
+  export CPPFLAGS="-I${MINGW_PREFIX}/include"
+
+  unset PKG_CONFIG
+  export enable_bzlib=no
+  ../Cbc-${pkgver}/configure \
+    --prefix=${MINGW_PREFIX} \
+    --build=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
+    --target=${MINGW_CHOST}
+
+  make
+}
+
+package() {
+  cd "${srcdir}"/build-${CARCH}
+  make install DESTDIR="${pkgdir}"
+}
