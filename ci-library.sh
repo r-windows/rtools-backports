@@ -96,7 +96,7 @@ _download_previous() {
     local filenames=("${@}")
     [[ "${DEPLOY_PROVIDER}" = bintray ]] || return 1
     for filename in "${filenames[@]}"; do
-        if ! curl -fsSOL "https://dl.bintray.com/${BINTRAY_TARGET}/${BINTRAY_REPOSITORY}/${filename}"; then
+        if ! curl -fsSOL "https://ftp.opencpu.org/${BINTRAY_TARGET}/${BINTRAY_REPOSITORY}/${filename}"; then
             rm -f "${filenames[@]}"
             return 1
         fi

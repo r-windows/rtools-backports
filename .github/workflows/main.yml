@@ -2,6 +2,8 @@ name: main
 
 on:
   push:
+    paths:
+      - 'mingw-w64-*/*'
   pull_request:
 
 jobs:
@@ -39,7 +41,7 @@ jobs:
           BUILD_URL: dummy
           DEPLOY_PROVIDER: bintray
           BINTRAY_TARGET: rtools
-          BINTRAY_REPOSITORY: backports
+          BINTRAY_REPOSITORY: ${{ matrix.msystem }}-backports
           PACMAN_REPOSITORY: ${{ matrix.msystem }}-backports
           BINTRAY_PACKAGE: ${{ matrix.msystem }}
 
