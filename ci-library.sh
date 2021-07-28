@@ -94,9 +94,9 @@ _build_add() {
 # Download previous artifact
 _download_previous() {
     local filenames=("${@}")
-    [[ "${DEPLOY_PROVIDER}" = bintray ]] || return 1
     for filename in "${filenames[@]}"; do
-        if ! curl -fsSOL "https://ftp.opencpu.org/${BINTRAY_TARGET}/${BINTRAY_REPOSITORY}/${filename}"; then
+        if ! curl -fsSOL "https://ftp.opencpu.org/rtools/${PACMAN_REPOSITORY}/${filename}"; then
+            echo "Failed to get https://ftp.opencpu.org/rtools/${PACMAN_REPOSITORY}/${filename}"
             rm -f "${filenames[@]}"
             return 1
         fi
@@ -164,12 +164,12 @@ create_pacman_repository() {
     repo-add "${name}.db.tar.xz" *.pkg.tar.xz
 }
 
-# Deployment is enabled
-deploy_enabled() {
-    test -n "${BUILD_URL}" || return 1
-    [[ "${DEPLOY_PROVIDER}" = bintray ]] || return 1
-    local repository_account="$(git remote get-url origin | cut -d/ -f4)"
-    [[ "${repository_account,,}" = "r-windows" ]]
+# Remove from repository
+remove_from_repository() {
+    local name="${1}"
+    local package="${2}"
+    _download_previous "${name}".{db,files}{,.tar.xz} || return 1
+    repo-remove "${name}.db.tar.xz" "mingw-w64-${MINGW_TOOLCHAIN}-${package}" || rm -Rf "${name}".{db,files}{,.tar.xz}
 }
 
 # Added commits

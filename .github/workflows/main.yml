@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         include: [
-          { msystem: mingw64 },
-          { msystem: mingw32 }
+          { msystem: mingw32, toolchain: i686 },
+          { msystem: mingw64, toolchain: x86_64 }
         ]
       fail-fast: false
     defaults:
@@ -27,7 +27,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          msystem: ${{ matrix.msystem }}
+          msystem: MSYS
           install: git
           update: true
 
@@ -36,14 +36,12 @@ jobs:
           r-version: 3.6
 
       - name: CI-Build
-        run: MINGW_INSTALLS=${{ matrix.msystem }} ./ci-build.sh
+        run: ./ci-build.sh
         env:
-          BUILD_URL: dummy
-          DEPLOY_PROVIDER: bintray
-          BINTRAY_TARGET: rtools
-          BINTRAY_REPOSITORY: ${{ matrix.msystem }}-backports
+          BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+          MINGW_ARCH: ${{ matrix.msystem }}
+          MINGW_TOOLCHAIN: ${{ matrix.toolchain }}
           PACMAN_REPOSITORY: ${{ matrix.msystem }}-backports
-          BINTRAY_PACKAGE: ${{ matrix.msystem }}
 
       - name: "Upload binary package"
         uses: actions/upload-artifact@v2

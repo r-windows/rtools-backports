@@ -1,27 +1,31 @@
 #!/bin/bash
-
-# AppVeyor and Drone Continuous Integration for MSYS2
-# Authors: Renato Silva, Qian Hong, Jeroen Ooms
-
-# Setup git and CI
 cd "$(dirname "$0")"
 source 'ci-library.sh'
-deploy_enabled && mkdir artifacts
-deploy_enabled && mkdir sourcepkg
+mkdir artifacts
+mkdir sourcepkg
 
-# msys64: remove preinstalled toolchains and swith to rtools40 repositories
-pacman --noconfirm -Rcsu mingw-w64-{i686,x86_64}-toolchain gcc pkg-config
+## Remove packages
+#deploy_enabled && cd artifacts
+#execute 'Removing old python3 packages from index' remove_from_repository "${PACMAN_REPOSITORY:-ci-build}" "python3"
+#success 'Package removal successful'
+#exit 0
+
+# Remove preinstalled libraries depending on if this is an rtools40 or msys64 install:
+if [[ $(cygpath -m /) == *"rtools40"* ]]; then
+  echo "Found preinstalled rtools40 compilers!"
+else
+  pacman --noconfirm -Rcsu $(pacman -Qqe | grep "^mingw-w64-")
+fi
+
+# Disable upstream mingw-packages
 cp -f pacman.conf /etc/pacman.conf
-
-# Temp hack for weird msys2 flag
-sed -i 's/,--default-image-base-high//' /etc/makepkg_mingw.conf
-
 pacman --noconfirm -Scc
 pacman --noconfirm -Syyu
-pacman --noconfirm --needed -S git base-devel binutils
+pacman --noconfirm --needed -S git base-devel binutils unzip pactoys
+pacman --noconfirm --needed -S mingw-w64-${MINGW_TOOLCHAIN}-{gcc,libtre,pkg-config,xz}
 
-# Install core build stuff
-pacman --noconfirm --needed -S mingw-w64-{i686,x86_64}-{crt,winpthreads,gcc,libtre,pkg-config,xz}
+# Remove weird upstream build flags
+sed -i 's/,--default-image-base-high//g' /etc/makepkg_mingw.conf
 
 # Initiate git
 git_config user.email 'ci@msys2.org'
@@ -43,20 +47,23 @@ execute 'Approving recipe quality' check_recipe_quality
 # Force static linking
 rm -f /mingw32/lib/*.dll.a
 rm -f /mingw64/lib/*.dll.a
-export PKG_CONFIG="/${MINGW_INSTALLS}/bin/pkg-config --static"
+export PKG_CONFIG="/${MINGW_ARCH}/bin/pkg-config --static"
 export PKGEXT='.pkg.tar.xz'
 
 for package in "${packages[@]}"; do
-    execute 'Building binary' makepkg-mingw --noconfirm --noprogressbar --skippgpcheck --nocheck --syncdeps --rmdeps --cleanbuild
+    execute 'Building binary' makepkg-mingw --noconfirm --noprogressbar --skippgpcheck --syncdeps --rmdeps --cleanbuild
+    MINGW_ARCH=mingw64 execute 'Building source' makepkg-mingw --noconfirm --noprogressbar --skippgpcheck --allsource
+    execute 'List output contents' ls -ltr
     execute 'Installing' yes:pacman --noprogressbar --upgrade *.pkg.tar.xz
     execute 'Checking Binaries' find ./pkg -regex ".*\.\(exe\|dll\|a\|pc\)"
-    deploy_enabled && mv "${package}"/*.pkg.tar.xz artifacts
+    execute 'Copying binary package' mv *.pkg.tar.xz ../artifacts
+    execute 'Copying source package' mv *.src.tar.gz ../sourcepkg
     unset package
 done
 
-# Deploy
-deploy_enabled && cd artifacts || success 'All packages built successfully'
-execute 'Generating pacman repository' create_pacman_repository "${PACMAN_REPOSITORY:-ci-build}"
+# Prepare for deploy
+cd artifacts
+execute 'Updating pacman repository index' create_pacman_repository "${PACMAN_REPOSITORY:-ci-build}"
 execute 'Generating build references'  create_build_references  "${PACMAN_REPOSITORY:-ci-build}"
 execute 'SHA-256 checksums' sha256sum *
 success 'All artifacts built successfully'
