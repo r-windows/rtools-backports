@@ -48,5 +48,6 @@ build() {
 package() {
   cd "${srcdir}/build-${MINGW_CHOST}"
   make DESTDIR=${pkgdir} install
+  cp "${pkgdir}${MINGW_PREFIX}/bin/geos-config" "${pkgdir}${MINGW_PREFIX}/bin/${MINGW_CHOST}-geos-config"
 }
 
