@@ -49,6 +49,7 @@ rm -f /mingw32/lib/*.dll.a
 rm -f /mingw64/lib/*.dll.a
 export PKG_CONFIG="/${MINGW_ARCH}/bin/pkg-config --static"
 export PKGEXT='.pkg.tar.xz'
+export SRCEXT='.src.tar.gz'
 
 for package in "${packages[@]}"; do
     execute 'Building binary' makepkg-mingw --noconfirm --noprogressbar --skippgpcheck --syncdeps --rmdeps --cleanbuild
