@@ -12,8 +12,8 @@ fi
 _realname=curl
 pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}${_namesuff}"
-pkgver=7.64.1
-pkgrel=9201
+pkgver=7.84.0
+pkgrel=9000
 pkgdesc="Command line tool and library for transferring data with URLs. (mingw-w64)"
 arch=('any')
 url="https://curl.haxx.se/"
@@ -21,15 +21,21 @@ license=("MIT")
 makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
 depends=("${MINGW_PACKAGE_PREFIX}-libssh2"
          "${MINGW_PACKAGE_PREFIX}-zlib"
+         "${MINGW_PACKAGE_PREFIX}-nghttp2"
          "${MINGW_PACKAGE_PREFIX}-openssl")
+
+# We include stubs for these libs because many packages have -lidn -lrtmp harcoded
+conflicts=("${MINGW_PACKAGE_PREFIX}-rtmpdump-git"
+           "${MINGW_PACKAGE_PREFIX}-libidn")
+
 if [ -n "${_namesuff}" ]; then
   provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
   conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 fi
 options=('staticlibs')
-source=("${url}/download/${_realname}-${pkgver}.tar.bz2"
+source=("${url}/download/${_realname}-${pkgver}.tar.xz"
         "disable-cainfo-for-schannel.patch")
-sha256sums=('4cc7c738b35250d0680f29e93e0820c4cb40035f43514ea3ec8d60322d41a45d'
+sha256sums=('2d118b43f547bfe5bae806d8d47b4e596ea5b25a6c1f080aef49fbcd817c5db8'
             'SKIP')
 validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'  # Daniel Stenberg
               '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'
@@ -55,7 +61,7 @@ build() {
   if [ "${_variant}" = "-winssl" ]; then
     _variant_config+=("--without-ssl")
     _variant_config+=("--without-gnutls")
-    _variant_config+=("--with-winssl")
+    _variant_config+=("--with-schannel")
     _variant_config+=('--without-nghttp2')
     _variant_config+=("--without-ca-bundle")
     _variant_config+=("--without-ca-path")
@@ -64,17 +70,17 @@ build() {
     _variant_config+=("--with-default-ssl-backend=schannel")
     _variant_config+=("--without-ssl")
     _variant_config+=("--with-gnutls")
-    _variant_config+=("--with-winssl")
+    _variant_config+=("--with-schannel")
     _variant_config+=('--without-nghttp2')
     _variant_config+=("--with-ca-bundle=${MINGW_PREFIX}/ssl/certs/ca-bundle.crt")
     _variant_config+=("--with-librtmp")
   elif [ "${_variant}" = "-openssl" ]; then
     _variant_config+=("--without-gnutls")
     _variant_config+=("--with-ssl")
-    _variant_config+=("--with-winssl")
+    _variant_config+=("--with-schannel")
     _variant_config+=("--with-default-ssl-backend=schannel")    
     _variant_config+=("--without-ca-bundle")
-    _variant_config+=("--without-nghttp2")
+    _variant_config+=("--with-nghttp2")
     _variant_config+=("--without-librtmp")
   fi
 
@@ -83,7 +89,9 @@ build() {
   export CXX="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin/g++"
   export PATH="/C/Rtools${MINGW_PREFIX/mingw/mingw_}/bin:$PATH"
   export CPPFLAGS="-I${MINGW_PREFIX}/include"
-  export LIBS="-L${MINGW_PREFIX}/libs"
+  export LIBS="-L${MINGW_PREFIX}/lib"
+
+  export CPPFLAGS="$CPPFLAGS -DNGHTTP2_STATICLIB"
 
   cd "${srcdir}/build-${CARCH}"
   ../${_realname}-${pkgver}/configure \
@@ -101,10 +109,11 @@ build() {
     --with-winidn \
     --with-libssh2 \
     --without-brotli \
+    --without-zstd \
     --with-ldap-lib=wldap32 \
-    --without-libmetalink \
     "${_variant_config[@]}" \
     "${extra_config[@]}"
+
 # there's a bug with zsh completion generation script and Windows.
 # curl has to specified with the file extension.
   sed -i "s|\/curl > \$\@|\/curl\$\{EXEEXT\} > \$\@|" scripts/Makefile
@@ -117,4 +126,8 @@ package() {
   
   local PREFIX_DEPS=$(cygpath -am ${MINGW_PREFIX})
   sed -s "s|${PREFIX_DEPS}|${MINGW_PREFIX}|g" -i ${pkgdir}${MINGW_PREFIX}/bin/curl-config
+
+  # Legacy things because old packages hardcode -lrtm -lidn
+  ar r "${pkgdir}${MINGW_PREFIX}/lib/librtmp.a"
+  ar r "${pkgdir}${MINGW_PREFIX}/lib/libidn.a"
 }
