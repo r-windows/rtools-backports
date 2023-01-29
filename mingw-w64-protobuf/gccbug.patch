@@ -1,0 +1,12 @@
+diff -aurp protobuf-3.19.4-orig/src/google/protobuf/stubs/mutex.h protobuf-3.19.4/src/google/protobuf/stubs/mutex.h
+--- protobuf-3.19.4-orig/src/google/protobuf/stubs/mutex.h	2023-01-29 18:22:37
++++ protobuf-3.19.4/src/google/protobuf/stubs/mutex.h	2023-01-29 18:23:52
+@@ -121,7 +121,7 @@ class GOOGLE_PROTOBUF_CAPABILITY("mutex") PROTOBUF_EXP
+ #if defined(__QNX__)
+   constexpr WrappedMutex() = default;
+ #else
+-  constexpr WrappedMutex() {}
++//  constexpr WrappedMutex() {}
+ #endif
+   void Lock() GOOGLE_PROTOBUF_ACQUIRE() { mu_.lock(); }
+   void Unlock() GOOGLE_PROTOBUF_RELEASE() { mu_.unlock(); }
