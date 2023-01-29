@@ -16,12 +16,14 @@ options=('staticlibs' 'strip')
 source=(${_realname}-${pkgver}.tar.gz::https://github.com/google/protobuf/archive/v${pkgver}.tar.gz
         googletest-release-${_gtest_ver}.tar.gz::https://github.com/google/googletest/archive/release-${_gtest_ver}.tar.gz
         0001-protobuf-3.1.0-gcc6.2.0-tests.patch
-        0002-windres-invocation.patch)
+        0002-windres-invocation.patch
+        gccbug.patch)
 noextract=("${_realname}-${pkgver}.tar.gz")
 sha256sums=('3bd7828aa5af4b13b99c191e8b1e884ebfa9ad371b0ce264605d347f135d2568'
             '9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb'
             '15c2248597356040be0111d5bfc7317d59a49552d5cd05b0fa70c76980b7ca66'
-            '7c5434ca428784058d6a3bb4a14ff8ff2c4ee843c51800751bbee599d5a63288')
+            '7c5434ca428784058d6a3bb4a14ff8ff2c4ee843c51800751bbee599d5a63288'
+            'SKIP')
 
 prepare() {
   tar -xzf "${srcdir}/${_realname}-${pkgver}.tar.gz"
@@ -32,6 +34,9 @@ prepare() {
 
   patch -p1 -i ${srcdir}/0001-protobuf-3.1.0-gcc6.2.0-tests.patch
   patch -p1 -i ${srcdir}/0002-windres-invocation.patch
+
+  # Jeroen: https://stackoverflow.com/questions/69232278/c-protocol-buffer-temporary-of-non-literal-type-googleprotobufinternal
+  patch -p1 -i ${srcdir}/gccbug.patch
   ./autogen.sh
 }
 
