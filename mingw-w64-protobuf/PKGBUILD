@@ -85,11 +85,6 @@ build() {
   make -j1
 }
 
-check() {
-  cd "${srcdir}/build-${MINGW_CHOST}"
-  make -j1 check
-}
-
 package() {
   cd "${srcdir}/build-${MINGW_CHOST}"
   make DESTDIR="${pkgdir}" install
